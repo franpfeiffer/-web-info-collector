@@ -1,10 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
-export default function Login() {
+export default function Register() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -15,16 +14,17 @@ export default function Login() {
     setError('')
 
     try {
-      const result = await signIn('credentials', {
-        username,
-        password,
-        redirect: false,
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
       })
 
-      if (result?.error) {
-        setError('Invalid username or password')
+      if (response.ok) {
+        router.push('/login?registered=true')
       } else {
-        router.push('/')
+        const data = await response.json()
+        setError(data.error || 'Registration failed')
       }
     } catch (err) {
       setError('An error occurred. Please try again.')
@@ -36,7 +36,7 @@ export default function Login() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Iniciar sesión
+            Crear una cuenta
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -77,7 +77,7 @@ export default function Login() {
               type="submit"
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Iniciar sesión
+              Registrarse
             </button>
           </div>
         </form>
